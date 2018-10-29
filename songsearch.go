@@ -112,6 +112,7 @@ func doSearch(songs []song, usages map[string][]songUsage) {
 		if text == "EXIT" {
 			break
 		}
+		text = strings.ToLower(text)
 		usage, ok := usages[text]
 		if ok {
 			for i, songUsage := range usage {
