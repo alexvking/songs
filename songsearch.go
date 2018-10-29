@@ -30,7 +30,9 @@ type song struct {
 // the given word was used in the specified song.
 type songUsage struct {
 	songIndex int
-	context   []string
+	// This could also just be an array of word indices, saving memory at the
+	// cost of a bit of performance.
+	context []string
 }
 
 func makeSongsArray(filename string) []song {
@@ -88,7 +90,7 @@ func makeContextFromWordIndices(songs []song, songIndex int, indices []int) []st
 	return context
 }
 
-func insertionSortSongUsages(usages []songUsage) {
+func bubbleSortSongUsages(usages []songUsage) {
 	// Given a list of songUsages, we want to order them by how many occurrences
 	// are included. Bubble sort it up to where it needs to be. O(n).
 	for index := len(usages) - 1; index > 0; index-- {
@@ -157,8 +159,8 @@ func main() {
 		}
 
 		// Given the map from word to occurrences, check to see if the
-		// number of occurrences in this song is globally significant, which
-		// in this case means in the top N.
+		// number of occurrences in this song is globally significant (within
+		// the top N.)
 		for word, indices := range songWordUsages {
 			globalUsages, ok := mostCommonUsages[word]
 
@@ -169,7 +171,7 @@ func main() {
 					context := makeContextFromWordIndices(songs, songIndex, indices)
 					s := songUsage{songIndex: songIndex, context: context}
 					globalUsages = append(globalUsages, s)
-					insertionSortSongUsages(globalUsages)
+					bubbleSortSongUsages(globalUsages)
 					mostCommonUsages[word] = globalUsages
 				} else {
 					// If the number of occurrences at position 10 is greater
@@ -179,7 +181,7 @@ func main() {
 						context := makeContextFromWordIndices(songs, songIndex, indices)
 						s := songUsage{songIndex: songIndex, context: context}
 						globalUsages[TopNSongsToReturn-1] = s
-						insertionSortSongUsages(globalUsages)
+						bubbleSortSongUsages(globalUsages)
 						mostCommonUsages[word] = globalUsages
 					}
 				}
