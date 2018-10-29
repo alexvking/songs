@@ -115,7 +115,7 @@ func doSearch(songs []song, usages map[string][]songUsage) {
 		usage, ok := usages[text]
 		if ok {
 			for i, songUsage := range usage {
-				fmt.Printf("Result #%d has %d occurrences:\n\n\n", i+1, len(songUsage.positions))
+				fmt.Printf("Result #%d has %d occurrence(s):\n\n\n", i+1, len(songUsage.positions))
 				artist := songs[songUsage.songIndex].artist
 				title := songs[songUsage.songIndex].title
 				contextStrings := makeContextFromWordIndices(songs, songUsage.songIndex, songUsage.positions)
@@ -148,10 +148,7 @@ func main() {
 		// occurs.
 		for wordIndex, word := range song.lyrics {
 			normalizedWord := reg.ReplaceAllString(word, "")
-			normalizedWord = strings.ToLower(word)
-			if strings.Contains(normalizedWord, "oink") {
-				fmt.Printf("!!! OINK FOUND: %s", normalizedWord)
-			}
+			normalizedWord = strings.ToLower(normalizedWord)
 			_, ok := songWordUsages[normalizedWord]
 			if ok {
 				songWordUsages[normalizedWord] = append(songWordUsages[normalizedWord], wordIndex)
@@ -170,7 +167,6 @@ func main() {
 			// to see if our data is significant enough to be included.
 			if ok {
 				if len(globalUsages) < TopNSongsToReturn {
-					// context := makeContextFromWordIndices(songs, songIndex, indices)
 					s := songUsage{songIndex: songIndex, positions: indices}
 					globalUsages = append(globalUsages, s)
 					bubbleSortSongUsages(globalUsages)
@@ -200,5 +196,4 @@ func main() {
 	duration := time.Now().Sub(start)
 	fmt.Printf("Data structure built. Time: %.3f seconds\n", duration.Seconds())
 	doSearch(songs, mostCommonUsages)
-	return
 }
