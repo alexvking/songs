@@ -2,5 +2,5 @@
 
 This is a recreation of "SongSearch" written in Go.
 
-It seems to be mostly working, but there is not full parity with the original
-program.
+It runs roughly 4x faster than my original C++ solution from 2014, and it uses
+roughly 50% less memory.
