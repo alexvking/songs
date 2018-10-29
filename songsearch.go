@@ -30,9 +30,7 @@ type song struct {
 // the given word was used in the specified song.
 type songUsage struct {
 	songIndex int
-	// This could also just be an array of word indices, saving memory at the
-	// cost of a bit of performance.
-	context []string
+	positions []int
 }
 
 func makeSongsArray(filename string) []song {
@@ -94,7 +92,7 @@ func bubbleSortSongUsages(usages []songUsage) {
 	// Given a list of songUsages, we want to order them by how many occurrences
 	// are included. Bubble sort it up to where it needs to be. O(n).
 	for index := len(usages) - 1; index > 0; index-- {
-		if len(usages[index].context) > len(usages[index-1].context) {
+		if len(usages[index].positions) > len(usages[index-1].positions) {
 			temp := usages[index]
 			usages[index] = usages[index-1]
 			usages[index-1] = temp
@@ -117,13 +115,14 @@ func doSearch(songs []song, usages map[string][]songUsage) {
 		usage, ok := usages[text]
 		if ok {
 			for i, songUsage := range usage {
-				fmt.Printf("Result #%d has %d occurrences:\n\n\n", i+1, len(songUsage.context))
+				fmt.Printf("Result #%d has %d occurrences:\n\n\n", i+1, len(songUsage.positions))
 				artist := songs[songUsage.songIndex].artist
 				title := songs[songUsage.songIndex].title
-				for _, contextString := range songUsage.context {
+				contextStrings := makeContextFromWordIndices(songs, songUsage.songIndex, songUsage.positions)
+				for j := range songUsage.positions {
 					fmt.Printf("Title: %s\n", title)
 					fmt.Printf("Artist: %s\n", artist)
-					fmt.Printf("Context: %s\n\n", contextString)
+					fmt.Printf("Context: %s\n\n", contextStrings[j])
 				}
 			}
 		} else {
@@ -150,6 +149,9 @@ func main() {
 		for wordIndex, word := range song.lyrics {
 			normalizedWord := reg.ReplaceAllString(word, "")
 			normalizedWord = strings.ToLower(word)
+			if strings.Contains(normalizedWord, "oink") {
+				fmt.Printf("!!! OINK FOUND: %s", normalizedWord)
+			}
 			_, ok := songWordUsages[normalizedWord]
 			if ok {
 				songWordUsages[normalizedWord] = append(songWordUsages[normalizedWord], wordIndex)
@@ -168,8 +170,8 @@ func main() {
 			// to see if our data is significant enough to be included.
 			if ok {
 				if len(globalUsages) < TopNSongsToReturn {
-					context := makeContextFromWordIndices(songs, songIndex, indices)
-					s := songUsage{songIndex: songIndex, context: context}
+					// context := makeContextFromWordIndices(songs, songIndex, indices)
+					s := songUsage{songIndex: songIndex, positions: indices}
 					globalUsages = append(globalUsages, s)
 					bubbleSortSongUsages(globalUsages)
 					mostCommonUsages[word] = globalUsages
@@ -177,9 +179,9 @@ func main() {
 					// If the number of occurrences at position 10 is greater
 					// than what we've got here, don't bother saving it. Otherwise
 					// save it and insertion sort to get it into correct order.
-					if len(globalUsages[TopNSongsToReturn-1].context) < len(indices) {
-						context := makeContextFromWordIndices(songs, songIndex, indices)
-						s := songUsage{songIndex: songIndex, context: context}
+					if len(globalUsages[TopNSongsToReturn-1].positions) < len(indices) {
+						// positions := makepositionsFromWordIndices(songs, songIndex, indices)
+						s := songUsage{songIndex: songIndex, positions: indices}
 						globalUsages[TopNSongsToReturn-1] = s
 						bubbleSortSongUsages(globalUsages)
 						mostCommonUsages[word] = globalUsages
@@ -188,8 +190,8 @@ func main() {
 			} else {
 				// There isn't anything global data for this word yet, so add
 				// our data.
-				context := makeContextFromWordIndices(songs, songIndex, indices)
-				s := songUsage{songIndex: songIndex, context: context}
+				// positions := makepositionsFromWordIndices(songs, songIndex, indices)
+				s := songUsage{songIndex: songIndex, positions: indices}
 				usage := []songUsage{s}
 				mostCommonUsages[word] = usage
 			}
