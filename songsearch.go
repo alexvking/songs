@@ -175,7 +175,7 @@ func main() {
 				} else {
 					// If the number of occurrences at position 10 is greater
 					// than what we've got here, don't bother saving it. Otherwise
-					// save it and insertion sort to get it into correct order.
+					// save it and sort to get it into correct order.
 					if len(globalUsages[TopNSongsToReturn-1].positions) < len(indices) {
 						s := songUsage{songIndex: songIndex, positions: indices}
 						globalUsages[TopNSongsToReturn-1] = s
