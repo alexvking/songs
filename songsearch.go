@@ -73,7 +73,7 @@ func makeContextFromWordIndices(songs []song, songIndex int, indices []int) []st
 			endIndex = wordIndex + NumContextWords
 		} else if wordIndex > lastIndex-NumContextWords {
 			startIndex = wordIndex - NumContextWords
-			endIndex = lyricsLength - 1
+			endIndex = lastIndex
 		} else {
 			startIndex = wordIndex - NumContextWords
 			endIndex = wordIndex + NumContextWords
@@ -177,7 +177,6 @@ func main() {
 					// than what we've got here, don't bother saving it. Otherwise
 					// save it and insertion sort to get it into correct order.
 					if len(globalUsages[TopNSongsToReturn-1].positions) < len(indices) {
-						// positions := makepositionsFromWordIndices(songs, songIndex, indices)
 						s := songUsage{songIndex: songIndex, positions: indices}
 						globalUsages[TopNSongsToReturn-1] = s
 						bubbleSortSongUsages(globalUsages)
@@ -187,7 +186,6 @@ func main() {
 			} else {
 				// There isn't anything global data for this word yet, so add
 				// our data.
-				// positions := makepositionsFromWordIndices(songs, songIndex, indices)
 				s := songUsage{songIndex: songIndex, positions: indices}
 				usage := []songUsage{s}
 				mostCommonUsages[word] = usage
